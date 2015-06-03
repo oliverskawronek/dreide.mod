@@ -1,4 +1,4 @@
-Strict
+SuperStrict
 
 Import "Mesh.bmx"
 
