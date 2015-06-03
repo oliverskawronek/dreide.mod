@@ -1,87 +1,77 @@
 SuperStrict
 
+Import brl.linkedlist
+Import "Error.bmx"
 Import "Entity.bmx"
 Import "Surface.bmx"
 
 Type TMesh Extends TEntity
+	Global List : TList
+
+	Field Surfaces     : TList
 	Field SurfaceCount : Int
-	Field Surfaces     : TSurface[]
 
-	Method New()
-		Self.Class   = DDD_ENTITY_MESH
-		Self.Name    = "Unnamed Mesh"
-		Self.Visible = True
-	End Method
-
-	Method Remove()
-		' Hmmmm
-	End Method
-
-	Method Render(Camera:TEntity)
-		Local I:Int, Surface:TSurface
-	
-		glTranslatef(Self.Position[0], Self.Position[1], Self.Position[2])
-		glScalef(Self.Scale[0], Self.Scale[1], Self.Scale[2])
-		glRotatef(Self.Rotation[0], Self.Rotation[1], Self.Rotation[2], ..
-		          Self.Rotation[3])
-		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].Render(Self)
-		Next
-	End Method
-	
 	Method CountSurfaces:Int()
 		Return Self.SurfaceCount
 	End Method
-	
+
 	Method CreateSurface:TSurface()
-		Self.Surfaces = Self.Surfaces[..(Self.SurfaceCount+1)]
-		Self.Surfaces[Self.SurfaceCount] = New TSurface
+		Local Surface:TSurface
 
+		Surface = New TSurface
+		Self.Surfaces.AddLast(Surface)
 		Self.SurfaceCount :+ 1
-		Return Self.Surfaces[Self.SurfaceCount-1]
+
+		Return Surface
 	End Method
 
-	Method AddSurface(Surface:TSurface)
-		Self.Surfaces = Self.Surfaces[..(Self.SurfaceCount+1)]
-		Self.Surfaces[Self.SurfaceCount] = Surface
+	Method RemoveSurface(Surface:TSurface)
+		If Self.Surfaces.Contains(Surface) Then
+			Self.Surfaces.Remove(Surface)
+			Self.SurfaceCount :- 1
+		Else
+			TDreiDeError.DisplayError("Surface does not exist!")
+		EndIf
 	End Method
 
-	Method GetSurface:TSurface(Index:Int=0)
-		Return Self.Surfaces[Index]
+	Method GetSurface:TSurface(Index:Int)
+		If (Index => 0) And (Index <= Self.SurfaceCount) Then
+			Return TSurface(Self.Surfaces.ValueAtIndex(Index))
+		Else
+			TDreiDeError.DisplayError("Surface out of Range!")
+		EndIf
 	End Method
 
 	Method SetMaterial(Material:TMaterial)
-		Local I:Int
+		Local Surface:TSurface
 		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].SetMaterial(Material)
+		For Surface = EachIn Self.Surfaces
+			Surface.SetMaterial(Material)
 		Next
 	End Method
 
 	Method ScaleVertices(X:Float, Y:Float, Z:Float, Update:Int=True)
-		Local I:Int
+		Local Surface:TSurface
 		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].Scale(X, Y, Z, Update)
+		For Surface = EachIn Self.Surfaces
+			Surface.Scale(X, Y, Z, Update)
 		Next
 	End Method
 
 	Method TranslateVertices(X:Float, Y:Float, Z:Float, Update:Int=True)
-		Local I:Int
+		Local Surface:TSurface
 		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].Translate(X, Y, Z, Update)
+		For Surface = EachIn Self.Surfaces
+			Surface.Translate(X, Y, Z, Update)
 		Next
 	End Method
 
 	Method GetWidth:Float()
-		Local I:Int, Surface:TSurface, Vertex:Int, X:Float, MinX:Float, MaxX:Float
-
-		For I = 0 Until Self.SurfaceCount
-			Surface = Self.Surfaces[I]
-			For Vertex = 0 Until Surface.CountVertices()
-				X = Surface.GetVertexX(Vertex)
+		Local Surface:TSurface, Vertex:Int, X:Float, MinX:Float, MaxX:Float
+		
+		For Surface = EachIn Self.Surfaces
+			For Vertex = 0 To Surface.VertexCount-1
+				X = Surface.Vertices[0].PeekFloat(Vertex*12)
 				If X < MinX Then MinX = X
 				If X > MaxX Then MaxX = X
 			Next
@@ -89,14 +79,13 @@ Type TMesh Extends TEntity
 		
 		Return MaxX-MinX
 	End Method
-
+	
 	Method GetHeight:Float()
-		Local I:Int, Surface:TSurface, Vertex:Int, Y:Float, MinY:Float, MaxY:Float
-
-		For I = 0 Until Self.SurfaceCount
-			Surface = Self.Surfaces[I]
-			For Vertex = 0 Until Surface.CountVertices()
-				Y = Surface.GetVertexY(Vertex)
+		Local Surface:TSurface, Vertex:Int, Y:Float, MinY:Float, MaxY:Float
+		
+		For Surface = EachIn Self.Surfaces
+			For Vertex = 0 To Surface.VertexCount-1
+				Y = Surface.Vertices[0].PeekFloat(Vertex*12+4)
 				If Y < MinY Then MinY = Y
 				If Y > MaxY Then MaxY = Y
 			Next
@@ -104,14 +93,13 @@ Type TMesh Extends TEntity
 		
 		Return MaxY-MinY
 	End Method
-
+	
 	Method GetDepth:Float()
-		Local I:Int, Surface:TSurface, Vertex:Int, Z:Float, MinZ:Float, MaxZ:Float
-
-		For I = 0 Until Self.SurfaceCount
-			Surface = Self.Surfaces[I]
-			For Vertex = 0 Until Surface.CountVertices()
-				Z = Surface.GetVertexY(Vertex)
+		Local Surface:TSurface, Vertex:Int, Z:Float, MinZ:Float, MaxZ:Float
+		
+		For Surface = EachIn Self.Surfaces
+			For Vertex = 0 To Surface.VertexCount-1
+				Z = Surface.Vertices[0].PeekFloat(Vertex*12+8)
 				If Z < MinZ Then MinZ = Z
 				If Z > MaxZ Then MaxZ = Z
 			Next
@@ -121,26 +109,66 @@ Type TMesh Extends TEntity
 	End Method
 
 	Method Invert(Normals:Int=True)
-		Local I:Int
+		Local Surface:TSurface
 		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].Invert(Normals)
+		For Surface = EachIn Self.Surfaces
+			Surface.Invert(Normals)
 		Next
 	End Method
 	
 	Method SmoothNormals(Update:Int=True)
-		Local I:Int
+		Local Surface:TSurface
 		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].SmoothNormals(Update)
+		For Surface = EachIn Self.Surfaces
+			Surface.SmoothNormals(Update)
 		Next
 	End Method
 
-	Method SetColor(R:Float, G:Float, B:Float, A:Float=1.0)
-		Local I:Int
+	Method SetColor(Red:Float, Green:Float, Blue:Float, Alpha:Float=1.0)
+		Local Surface:TSurface
 		
-		For I = 0 Until Self.SurfaceCount
-			Self.Surfaces[I].SetColor(R, G, B, A)
+		For Surface = EachIn Self.Surfaces
+			Surface.SetColor(Red, Green, Blue, Alpha)
 		Next
+	End Method
+
+	Method Render()
+		Local ParentList:TList, Parent:TEntity, Surface:TSurface
+
+		' Set Transformation
+		If Self.Parent Then
+			ParentList = CreateList()
+
+			Parent = Self.Parent
+			Repeat
+				ParentList.AddFirst(Parent)
+				Parent = Parent.Parent
+			Until Not Parent
+
+			For Parent = EachIn ParentList
+				glMultMatrixf(Parent.Transformation.Matrix.Components)
+			Next
+		EndIf
+
+		glMultMatrixf(Self.Transformation.Matrix.Components)
+
+		For Surface = EachIn Self.Surfaces
+			Surface.Render(Self)
+		Next
+	End Method
+	
+	Method New()
+		Self.Class  = DDD_ENTITY_MESH
+		Self.Name   = "Unnamed Mesh"
+
+		Self.Surfaces     = CreateList()
+		Self.SurfaceCount = 0
+
+		TMesh.List.AddLast(Self)
+	End Method
+
+	Method Remove()
+		TMesh.List.Remove(Self)
+		TEntity.List.Remove(Self)
 	End Method
 End Type

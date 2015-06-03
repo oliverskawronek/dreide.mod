@@ -1,11 +1,10 @@
-SuperStrict
+Strict
 
 Import "Mesh.bmx"
 
 Type TPrimitive
 	Function CreateQuad:TMesh()
-		Local Mesh    : TMesh, ..
-		      Surface : TSurface
+		Local Mesh:TMesh, Surface:TSurface
 
 		Mesh = New TMesh
 		Surface = Mesh.CreateSurface()
@@ -30,10 +29,7 @@ Type TPrimitive
 	End Function
 
 	Function CreateDisc:TMesh(Segments:Int=36)
-		Local Mesh    : TMesh, ..
-		      Surface : TSurface, ..
-		      Index   : Int, ..
-		      Angle   : Float
+		Local Mesh:TMesh, Surface:TSurface, Index:Int, Angle:Float
 
 		If Segments < 3 Then Return Null
 
@@ -58,8 +54,7 @@ Type TPrimitive
 	End Function
 
 	Function CreateCube:TMesh(SubFaces:Int=False)
-		Local Mesh    : TMesh, ..
-		      Surface : TSurface
+		Local Mesh:TMesh, Surface:TSurface
 
 		Mesh = New TMesh
 		If SubFaces Then
@@ -288,10 +283,7 @@ Type TPrimitive
 	End Function
 
 	Function CreateCone:TMesh(Segments:Int=32, Cap:Int=True)
-		Local Mesh    : TMesh, ..
-		      Surface : TSurface, ..
-		      Index   : Int, ..
-		      Angle   : Float
+		Local Mesh:TMesh, Surface:TSurface, Index:Int, Angle:Float
 
 		If Segments < 3 Then Return Null
 
@@ -342,10 +334,7 @@ Type TPrimitive
 	End Function
 
 	Function CreateCylinder:TMesh(Segments:Int=36, Caps:Int=True)
-		Local Mesh    : TMesh, ..
-		      Surface : TSurface, ..
-		      Index   : Int, ..
-		      Angle   : Float
+		Local Mesh:TMesh, Surface:TSurface, Index:Int, Angle:Float
 
 		If Segments < 3 Then Return Null
 
@@ -415,17 +404,9 @@ Type TPrimitive
 	End Function
 
 	Function CreateSphere:TMesh(Segments:Int=36)
-		Local Mesh     : TMesh, ..
-		      Surface  : TSurface, ..
-		      VSegment : Int, ..
-		      HSegment : Int, ..
-		      Radius   : Float, ..
-		      Angle    : Float, ..
-		      NX       : Float, ..
-		      NY       : Float, ..
-		      NZ       : Float, ..
-		      TexU     : Float, ..
-		      TexV     : Float
+		Local Mesh:TMesh, Surface:TSurface, VSegment:Int, HSegment:Int
+		Local Radius:Float, Angle:Float, NX:Float, NY:Float, NZ:Float
+		Local TexU:Float, TexV:Float
 
 		If Segments < 4 Then Return Null
 

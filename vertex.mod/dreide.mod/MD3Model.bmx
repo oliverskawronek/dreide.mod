@@ -1,19 +1,20 @@
 SuperStrict
 
-Import BRL.EndianStream
+Import brl.filesystem
+Import brl.endianstream
 Import "Mesh.bmx"
 
 ' MD3 Header Constants
-Const DDD_MD3_MAGIC   : Int = $33504449, .. ' "IDP3"
-      DDD_MD3_VERSION : Int = 15
+Const DDD_MD3_MAGIC   : Int = $33504449 ' "IDP3"
+Const DDD_MD3_VERSION : Int = 15
 
 ' MD3 Limits
-Const DDD_MD3_MAXTRIANGLES : Int = 8192, ..  ' Per Surface
-      DDD_MD3_MAXVERTICES  : Int = 4096, ..  ' Per Surface
-      DDD_MD3_MAXSHADERS   : Int =  256 , .. ' Per Surface
-      DDD_MD3_MAXFRAMES    : Int = 1024, ..  ' Per Model
-      DDD_MD3_MAXSURFACES  : Int =   32, ..  ' Per Model
-      DDD_MD3_MAXTAGS      : Int =   16      ' Per Frame
+Const DDD_MD3_MAXTRIANGLES : Int = 8192  ' Per Surface
+Const DDD_MD3_MAXVERTICES  : Int = 4096  ' Per Surface
+Const DDD_MD3_MAXSHADERS   : Int = 256   ' Per Surface
+Const DDD_MD3_MAXFRAMES    : Int = 1024  ' Per Model
+Const DDD_MD3_MAXSURFACES  : Int = 32    ' Per Model
+Const DDD_MD3_MAXTAGS      : Int = 16    ' Per Frame
 
 Type TMD3Header
 	Field Ident          : Int    ' "IDP3"
@@ -53,6 +54,7 @@ Type TMD3Header
 		   (Self.NumFrames > DDD_MD3_MAXFRAMES) Or ..
 		   (Self.NumSurfaces > DDD_MD3_MAXSURFACES) Or ..
 		   (Self.NumTags > DDD_MD3_MAXTAGS) Then
+
 			Return False
 		Else
 			Return True
@@ -112,6 +114,8 @@ Type TMD3SurfaceFrame
 End Type
 
 Type TMD3Model Extends TMesh
+	Global List    : TList
+
 	Field FrameCount    : Int
 	Field SurfaceFrames : TList
 
@@ -119,19 +123,16 @@ Type TMD3Model Extends TMesh
 		Return Self.FrameCount
 	End Method
 
-	Method SetFrame:Int(Frame:Float, Update:Int=True)
-		Local Frame0       : Int, ..
-		      Frame1       : Int, ..
-		      Weight       : Float, ..
-		      SurfaceFrame : TMD3SurfaceFrame, ..
-		      Surface      : TSurface, ..
-		      Vertex       : Int, ..
-		      Position     : Float[3]
+	Method SetFrame(Frame:Float, Update:Int=True)
+		Local Frame0:Int, Frame1:Int, Weight:Float
+		Local SurfaceFrame:TMD3SurfaceFrame, Surface:TSurface
+		Local Vertex:Int, Position:Float[3]
 
 		Frame0 = Int(Floor(Frame))
 		Frame1 = Int(Ceil(Frame))
 		Weight = Frame-Float(Frame0)
-		If (Frame0 < 0) Or (Frame1 => Self.FrameCount) Then Return False
+		If (Frame0 < 0) Or (Frame1 => Self.FrameCount) Then ..
+		   TDreiDeError.DisplayError("FrameIndex out of Range!")
 
 		For SurfaceFrame = EachIn Self.SurfaceFrames
 			Surface = SurfaceFrame.Surface
@@ -159,8 +160,6 @@ Type TMD3Model Extends TMesh
 
 			If Update Then Surface.UpdateVertices(True, False, False, False, False, False)
 		Next
-
-		Return True
 	End Method
 
 	Method New()
@@ -169,6 +168,10 @@ Type TMD3Model Extends TMesh
 
 		Self.FrameCount    = 0
 		Self.SurfaceFrames = CreateList()
+
+		TMD3Model.List.AddLast(Self)
+		TMesh.List.AddLast(Self)
+		TEntity.List.AddLast(Self)
 	End Method
 
 	Method Remove()
@@ -178,23 +181,11 @@ Type TMD3Model Extends TMesh
 	End Method
 
 	Function Load:TMD3Model(URL:Object, Skin:Object=Null)
-		Local Stream       : TStream, ..
-		      Header       : TMD3Header, ..
-		      MD3Surface   : TMD3Surface, ..
-		      SurfaceFrame : TMD3SurfaceFrame, ..
-		      Index        : Int, ..
-		      Model        : TMD3Model, ..
-		      Surface      : TSurface, ..
-		      Offset       : Int, ..
-		      Vertex       : Int, ..
-		      Triangle     : Int, ..
-		      TexCoords    : Float[2], ..
-		      Indices      : Int[3], ..
-		      NormalIndex  : Byte[2], ..
-		      Alpha        : Float, ..
-		      Beta         : Float, ..
-		      Normal       : Float[3], ..
-		      Frame        : Int
+		Local Stream:TStream, Header:TMD3Header, MD3Surface:TMD3Surface
+		Local SurfaceFrame:TMD3SurfaceFrame
+		Local Index:Int, Model:TMD3Model, Surface:TSurface, Offset:Int
+		Local Vertex:Int, Triangle:Int, TexCoords:Float[2], Indices:Int[3]
+		Local NormalIndex:Byte[2], Alpha:Float, Beta:Float, Normal:Float[3], Frame:Int
 
 		Stream = LittleEndianStream(ReadStream(URL))
 		If Not Stream Then Return Null
@@ -268,7 +259,7 @@ Type TMD3Model Extends TMesh
 			For Vertex = 1 To MD3Surface.NumVertices
 				SurfaceFrame.Frames[0, Vertex-1, 2] = Float(ReadSignedShort(Stream))/64.0
 				SurfaceFrame.Frames[0, Vertex-1, 0] = Float(ReadSignedShort(Stream))/64.0
-				SurfaceFrame.Frames[0, Vertex-1, 1] = Float(ReadSignedShort(Stream))/64.0	
+				SurfaceFrame.Frames[0, Vertex-1, 1] = Float(ReadSignedShort(Stream))/64.0			
 
 				NormalIndex[0] = Stream.ReadByte()
 				NormalIndex[1] = Stream.ReadByte()
@@ -361,7 +352,7 @@ Type TMD3Model Extends TMesh
 		EndFunction
 
 		Function ReadSignedShort:Int(Stream:TStream)
-			Local Value : Int
+			Local Value:Int
 
 			' If the most significant Bit is set, Value is negative 
 			Value = Stream.ReadShort()

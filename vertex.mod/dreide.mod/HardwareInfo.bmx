@@ -1,42 +1,44 @@
 SuperStrict
 
-Import BRL.GLGraphics
-Import Pub.Glew
-Import BRL.Stream
-Import BRL.StandardIO
+Import pub.glew
+?Linux
+	Import "-lX11"
+	Import "-lXxf86vm"
+?
+Import brl.standardio
 
 Type THardwareInfo
-	Global ScreenWidth  : Int, ..
-	       ScreenHeight : Int, ..
-	       ScreenDepth  : Int, ..
-	       ScreenHertz  : Int
+	Global ScreenWidth  : Int
+	Global ScreenHeight : Int
+	Global ScreenDepth  : Int
+	Global Fullscreen   : Int
 
-	Global Vendor     : String, ..
-	       Renderer   : String, ..
-	       OGLVersion : String
+	Global Vendor     : String
+	Global Renderer   : String
+	Global OGLVersion : String
 
-	Global Extensions      : String, ..
-	       VBOSupport      : Int, .. ' Vertex Buffer Object
-	       GLTCSupport     : Int, .. ' OpenGL's TextureCompression
-	       S3TCSupport     : Int, .. ' S3's TextureCompression
-	       AnIsoSupport    : Int, .. ' An-Istropic Filtering
-	       MultiTexSupport : Int, .. ' MultiTexturing
-	       TexBlendSupport : Int, .. ' TextureBlend
-	       CubemapSupport  : Int, .. ' CubeMapping
-	       DepthmapSupport : Int, .. ' DepthTexturing
-	       VPSupport       : Int, .. ' VertexProgram (ARBvp1.0)
-	       FPSupport       : Int, .. ' FragmentProgram (ARBfp1.0)
-	       ShaderSupport   : Int, .. ' glSlang Shader Program
-	       VSSupport       : Int, .. ' glSlang VertexShader
-	       FSSupport       : Int, .. ' glSlang FragmentShader
-	       SLSupport       : Int     ' OpenGL Shading Language 1.00
+	Global Extensions      : String
+	Global VBOSupport      : Int ' Vertex Buffer Object
+	Global GLTCSupport     : Int ' OpenGL's TextureCompression
+	Global S3TCSupport     : Int ' S3's TextureCompression
+	Global AnIsoSupport    : Int ' An-Istropic Filtering
+	Global MultiTexSupport : Int ' MultiTexturing
+	Global TexBlendSupport : Int ' TextureBlend
+	Global CubemapSupport  : Int ' CubeMapping
+	Global DepthmapSupport : Int ' DepthTexturing
+	Global VPSupport       : Int ' VertexProgram (ARBvp1.0)
+	Global FPSupport       : Int ' FragmentProgram (ARBfp1.0)
+	Global ShaderSupport   : Int ' glSlang Shader Program
+	Global VSSupport       : Int ' glSlang VertexShader
+	Global FSSupport       : Int ' glSlang FragmentShader
+	Global SLSupport       : Int ' OpenGL Shading Language 1.00
 
-	Global MaxTextures : Int, ..
-	       MaxTexSize  : Int, ..
-	       MaxLights   : Int
+	Global MaxTextures : Int
+	Global MaxTexSize  : Int
+	Global MaxLights   : Int
 
 	Function GetInfo()
-		Local Extensions : String
+		Local Extensions:String
 
 		' Get HardwareInfo
 		Vendor     = String.FromCString(Byte Ptr(glGetString(GL_VENDOR)))
@@ -69,38 +71,65 @@ Type THardwareInfo
 		glGetIntegerv(GL_MAX_LIGHTS, Varptr(THardwareInfo.MaxLights))
 	End Function
 
-	Function DisplayInfo(Stream:TStream=Null)
-		Local Position : Int, ..
-		      Space    : Int
+	Function DisplayInfo(LogFile:Int=False)
+		Local Position:Int, Space:Int, Stream:TStream
 
-		If Not Stream Then Stream = StandardIOStream
+		If LogFile Then
+			Stream = WriteStream("DreiDeLog.txt") 
+			Stream.WriteLine("DreiDe Hardwareinfo:")
+			Stream.WriteLine("")
 
-		Stream.WriteLine("DreiDe Hardwareinfo:")
-		Stream.WriteLine("")
+			' Display Driverinfo
+			Stream.WriteLine("Vendor:         "+Vendor)
+			Stream.WriteLine("Renderer:       "+Renderer)
+			Stream.WriteLine("OpenGL-Version: "+OGLVersion)
+			Stream.WriteLine("")
 
-		' Display Driverinfo
-		Stream.WriteLine("Vendor:         " + Vendor)
-		Stream.WriteLine("Renderer:       " + Renderer)
-		Stream.WriteLine("OpenGL-Version: " + OGLVersion)
-		Stream.WriteLine("")
+			' Display Hardwareranges
+			Stream.WriteLine("Max Texture Units: "+MaxTextures)
+			Stream.WriteLine("Max Texture Size:  "+MaxTexSize)
+			Stream.WriteLine("Max Lights:        "+MaxLights)
+			Stream.WriteLine("")
 
-		' Display Hardwareranges
-		Stream.WriteLine("Max Texture Units: " + MaxTextures)
-		Stream.WriteLine("Max Texture Size:  " + MaxTexSize)
-		Stream.WriteLine("Max Lights:        " + MaxLights)
-		Stream.WriteLine("")
+			' Display OpenGL-Extensions
+			Stream.WriteLine("OpenGL Extensions:")
+			While Position < Extensions.Length
+				Space = Extensions.Find(" ", Position)
+				If Space = -1 Then Exit
+				Stream.WriteLine(Extensions[Position..Space])
+				Position = Space+1
+			Wend
 
-		' Display OpenGL-Extensions
-		Stream.WriteLine("OpenGL Extensions:")
-		While Position < Extensions.Length
-			Space = Extensions.Find(" ", Position)
-			If Space = -1 Then Exit
+			Stream.WriteLine("")
+			Stream.WriteLine("- Ready -")
+			Stream.Close()
+		Else
+			Print("DreiDe Hardwareinfo:")
+			Print("")
 
-			Stream.WriteLine(Extensions[Position..Space])
-			Position = Space + 1
-		Wend
+			' Display Driverinfo
+			Print("Vendor:         "+Vendor)
+			Print("Renderer:       "+Renderer)
+			Print("OpenGL-Version: "+OGLVersion)
+			Print("")
 
-		Stream.WriteLine("")
-		Stream.WriteLine("- ready -")
+			' Display Hardwareranges
+			Print("Max Texture Units: "+MaxTextures)
+			Print("Max Texture Size:  "+MaxTexSize)
+			Print("Max Lights:        "+MaxLights)
+			Print("")
+
+			' Display OpenGL-Extensions
+			Print("OpenGL Extensions:")
+			While Position < Extensions.Length
+				Space = Extensions.Find(" ", Position)
+				If Space = -1 Then Exit
+				Print(Extensions[Position..Space])
+				Position = Space+1
+			Wend
+
+			Print("")
+			Print("- Ready -")
+		EndIf
 	End Function
 End Type

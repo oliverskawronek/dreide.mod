@@ -1,37 +1,41 @@
-SuperStrict
+Strict
 
-Import BRl.EndianStream
-Import "Mesh.bmx"
+Import brl.filesystem
+Import brl.endianstream
+Import "..\Mesh.bmx"
+Import "..\Surface.bmx"
+Import "..\Material.bmx"
+Import "..\Texture.bmx"
 
 ' 3DS Chunks
-Const DDD_3DS_RGB3F             : Short = $0010, ..
-      DDD_3DS_RGB3B             : Short = $0011, ..
-      DDD_3DS_RGBGAMMA3B        : Short = $0012, ..
-      DDD_3DS_RGBGAMMA3F        : Short = $0013, ..
-      DDD_3DS_PERCENTI          : Short = $0030, ..
-      DDD_3DS_PERCENTF          : Short = $0031, ..
-      DDD_3DS_MAIN              : Short = $4D4D, ..
-      DDD_3DS_3DEDITOR          : Short = $3D3D, ..
-      DDD_3DS_OBJECTBLOCK       : Short = $4000, ..
-      DDD_3DS_TRIMESH           : Short = $4100, ..
-      DDD_3DS_VERTEXLIST        : Short = $4110, ..
-      DDD_3DS_FACELIST          : Short = $4120, ..
-      DDD_3DS_FACEMATLIST       : Short = $4130, ..
-      DDD_3DS_TEXCOORDS         : Short = $4140, ..
-      DDD_3DS_MATERIALBLOCK     : Short = $AFFF, ..
-      DDD_3DS_MATERIALNAME      : Short = $A000, ..
-      DDD_3DS_MATERIALAMBIENT   : Short = $A010, ..
-      DDD_3DS_MATERIALDIFFUSE   : Short = $A020, ..
-      DDD_3DS_MATERIALSPECULAR  : Short = $A030, ..
-      DDD_3DS_MATERIALSHININESS : Short = $A040, ..
-      DDD_3DS_TEXTUREMAP1       : Short = $A200, ..
-      DDD_3DS_TEXTUREMAP2       : Short = $A33A, ..
-      DDD_3DS_MAPFILENAME       : Short = $A300, ..
-      DDD_3DS_MAPVSCALE         : Short = $A354, ..
-      DDD_3DS_MAPUSCALE         : Short = $A356, ..
-      DDD_3DS_MAPUOFFSET        : Short = $A358, ..
-      DDD_3DS_MAPVOFFSET        : Short = $A35A, ..
-      DDD_3DS_MAPROTATION       : Short = $A35C
+Const DDD_3DS_RGB3F             : Int = $0010
+Const DDD_3DS_RGB3B             : Int = $0011
+Const DDD_3DS_RGBGAMMA3B        : Int = $0012
+Const DDD_3DS_RGBGAMMA3F        : Int = $0013
+Const DDD_3DS_PERCENTI          : Int = $0030
+Const DDD_3DS_PERCENTF          : Int = $0031
+Const DDD_3DS_MAIN              : Int = $4D4D
+Const DDD_3DS_3DEDITOR          : Int = $3D3D
+Const DDD_3DS_OBJECTBLOCK       : Int = $4000
+Const DDD_3DS_TRIMESH           : Int = $4100
+Const DDD_3DS_VERTEXLIST        : Int = $4110
+Const DDD_3DS_FACELIST          : Int = $4120
+Const DDD_3DS_FACEMATLIST       : Int = $4130
+Const DDD_3DS_TEXCOORDS         : Int = $4140
+Const DDD_3DS_MATERIALBLOCK     : Int = $AFFF
+Const DDD_3DS_MATERIALNAME      : Int = $A000
+Const DDD_3DS_MATERIALAMBIENT   : Int = $A010
+Const DDD_3DS_MATERIALDIFFUSE   : Int = $A020
+Const DDD_3DS_MATERIALSPECULAR  : Int = $A030
+Const DDD_3DS_MATERIALSHININESS : Int = $A040
+Const DDD_3DS_TEXTUREMAP1       : Int = $A200
+Const DDD_3DS_TEXTUREMAP2       : Int = $A33A
+Const DDD_3DS_MAPFILENAME       : Int = $A300
+Const DDD_3DS_MAPVSCALE         : Int = $A354
+Const DDD_3DS_MAPUSCALE         : Int = $A356
+Const DDD_3DS_MAPUOFFSET        : Int = $A358
+Const DDD_3DS_MAPVOFFSET        : Int = $A35A
+Const DDD_3DS_MAPROTATION       : Int = $A35C
 
 Type T3DSLoader
 	Field Stream        : TStream
@@ -56,8 +60,7 @@ Type T3DSLoader
 	End Method
 
 	Method ReadCString:String()
-		Local Char    : Byte, ..
-		      CString : String
+		Local Char:Byte, CString:String
 
 		' Null-Terminated-String
 		While Not Self.Stream.Eof()
@@ -111,12 +114,11 @@ Type T3DSLoader
 	End Method
 
 	Method ReadVertexList()
-		Local Index    : Int, ..
-		      Position : Float[3]
+		Local Index:Int, Position:Float[3]
 
 		Self.VertexCount = Self.Stream.ReadShort()
 
-		For Index = 0 Until Self.VertexCount
+		For Index = 0 To Self.VertexCount-1
 			Position[0] = Self.Stream.ReadFloat()
 			Position[1] = Self.Stream.ReadFloat()
 			Position[2] = Self.Stream.ReadFloat()
@@ -128,11 +130,10 @@ Type T3DSLoader
 	End Method
 
 	Method ReadFaceList()
-		Local Index   : Int, ..
-		      Indices : Int[3]
+		Local Index:Int, Indices:Int[3]
 
 		Self.TriangleCount = Self.Stream.ReadShort()
-		For Index = 0 Until Self.TriangleCount
+		For Index = 0 To Self.TriangleCount-1
 			Indices[2] = Self.Stream.ReadShort()
 			Indices[1] = Self.Stream.ReadShort()
 			Indices[0] = Self.Stream.ReadShort()
@@ -146,10 +147,7 @@ Type T3DSLoader
 	End Method
 
 	Method ReadFaceMatList()
-		Local Name     : String, ..
-		      Material : TMaterial, ..
-		      Found    : Int, ..
-		      Count    : Int
+		Local Name:String, Material:TMaterial, Found:Int, Count:Int
 
 		Name = Self.ReadCString()
 
@@ -169,13 +167,10 @@ Type T3DSLoader
 	End Method
 
 	Method ReadTexCoords()
-		Local Count : Int, ..
-		      Index : Int, ..
-		      U     : Float, ..
-		      V     : Float
+		Local Count:Int, Index:Int, U:Float, V:Float
 
 		Count = Self.Stream.ReadShort()
-		For Index = 0 Until Count
+		For Index = 0 To Count-1
 			U = Self.Stream.ReadFloat()
 			V = -Self.Stream.ReadFloat()
 
@@ -187,8 +182,7 @@ Type T3DSLoader
 	End Method
 
 	Method LoadMap()
-		Local Filename : String, ..
-		      Pixmap   : TPixmap
+		Local Filename:String, Pixmap:TPixmap
 
 		Filename = Self.ReadCString()
 		Pixmap = LoadPixmap("littleendian::"+Filename)
@@ -237,14 +231,10 @@ Type T3DSLoader
 	End Method
 
 	Function Load:TMesh(URL:Object)
-		Local Loader  : T3DSLoader, ..
-		      Size    : Int, ..
-		      OldDir  : String, ..
-		      Red     : Float, ..
-		      Green   : Float, ..
-		      Blue    : Float, ..
-		      Percent : Float, ..
-		      Pixmap  : TPixmap
+		Local Loader:T3DSLoader, Size:Int
+		Local OldDir:String
+		Local Red:Float, Green:Float, Blue:Float, Percent:Float
+		Local Pixmap:TPixmap
 
 		Loader = New T3DSLoader
 
@@ -327,19 +317,19 @@ Type T3DSLoader
 					Loader.LoadMap()
 
 				Case DDD_3DS_MAPVSCALE
-					Loader.Texture.Scale[0] = Loader.Stream.ReadFloat()
+					Loader.Texture.Transformation.Scale[0] = Loader.Stream.ReadFloat()
 
 				Case DDD_3DS_MAPUSCALE
-					Loader.Texture.Scale[1] = Loader.Stream.ReadFloat()
+					Loader.Texture.Transformation.Scale[1] = Loader.Stream.ReadFloat()
 
 				Case DDD_3DS_MAPUOFFSET
-					Loader.Texture.Position[0] = Loader.Stream.ReadFloat()
+					Loader.Texture.Transformation.Position[0] = Loader.Stream.ReadFloat()
 
 				Case DDD_3DS_MAPVOFFSET
-					Loader.Texture.Position[1] = Loader.Stream.ReadFloat()
+					Loader.Texture.Transformation.Position[1] = Loader.Stream.ReadFloat()
 
 				Case DDD_3DS_MAPROTATION
-					Loader.Texture.Rotation = Loader.Stream.ReadFloat()
+					Loader.Texture.SetRotation(Loader.Stream.ReadFloat())
 
 				Default
 					If (Loader.ChunkID = DDD_3DS_TEXTUREMAP1) Or ..
