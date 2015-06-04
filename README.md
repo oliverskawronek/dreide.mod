@@ -1,5 +1,23 @@
 # DreiDe
-A 3D engine for BlitzMax based on OpenGL. Supports entity based scene handling, texturing, 3DS and MD3 loading, etc.
+A 3D engine for BlitzMax based on OpenGL.
+
+**Highlights:**
+* Entity system with parent child relations
+* Shaders: OpenGL Shading Language 1.00, glSlang Shaders
+* Material:
+ * Wire frame or points
+ * Flat or gouraud shading
+ * Blend modes: alpha, multiply, add
+ * Material colors: ambient, diffuse, specular, emmisive
+* Bump Mapping (see example)
+* Toon Shading (see example)
+* Multitexturing
+* Predefined primitives: quad, disc, cube, cone, cylinder, sphere
+* Supported mesh filetypes:
+ * 3D Studio *.3ds
+ * Blitz3D *.b3d (experimental)
+* Additional texture format:
+ * DirectDraw Surface *.dds
 
 > **Note**: This project was started in 2005 and last updated in 2007. It is currently not under active development!
 
