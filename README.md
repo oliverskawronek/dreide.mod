@@ -12,8 +12,8 @@ You can do this by typing `git checkout 2.59`
 # Installation
 1. Copy **vertex.mod** into your `%BlitzMax%/mod` folder
 2. Make sure you have setup MinGW for BlitzMax correctly. Please check this topics:
- * [Installed MingW, can no longer build project](http://www.blitzbasic.com/Community/posts.php?topic=104435)
  * [Guide how to set up MinGW for BlitzMax](http://www.blitzbasic.com/Community/posts.php?topic=90964)
+ * [Installed MingW, can no longer build project](http://www.blitzbasic.com/Community/posts.php?topic=104435)
 3. Open the MaxIDE, goto **Program** > **Build Modules**
 4. Now you can import DreiDe by writing `import vertex.dreide`
 
