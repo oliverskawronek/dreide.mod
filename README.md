@@ -22,7 +22,7 @@ DreiDe was successfully testet with Windows 7, BlitzMax 1.50 and GCC 4.5.2.
 # Example
 A simple example that renders a rotating cube:
 
-```
+```blitzmax
 SuperStrict
 
 Framework brl.blitz
