@@ -1,5 +1,5 @@
 # DreiDe
-A 3D engine for BlitzMax based on OpenGL. Supports entity based scene handling, texturing, 3DS and MD3 loading, etc.
+A 3D engine for BlitzMax based on OpenGL. It supports an entity system, texturing, 3DS and MD3 loading, etc.
 
 > **Note**: This project was started in 2005 and last updated in 2007. It is currently not under active development!
 
