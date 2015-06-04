@@ -10,7 +10,7 @@ Please checkout the **2.59** branch for the older, but feature rich version. The
 You can do this by typing `git checkout 2.59`
 
 # Installation
-1. Copy vertex.mod into your `%BlitzMax%/mod` folder
+1. Copy **vertex.mod** into your `%BlitzMax%/mod` folder
 2. Make sure you have setup MinGW for BlitzMax correctly. Please check this topics:
  * [Installed MingW, can no longer build project](http://www.blitzbasic.com/Community/posts.php?topic=104435)
  * [Guide how to set up MinGW for BlitzMax](http://www.blitzbasic.com/Community/posts.php?topic=90964)
