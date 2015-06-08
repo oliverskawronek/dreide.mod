@@ -39,15 +39,19 @@ DreiDe was successfully testet with Windows 7, BlitzMax 1.50 and GCC 4.5.2.
 
 # Screenshots
 **Toon Shading** Screenshot taken from *examples/toonshader.bmx*
+
 ![Toon Shading](https://cloud.githubusercontent.com/assets/10528519/8034685/58a592d6-0dea-11e5-922a-37d6f97a99c2.png "Screenshot Toon Shading")
 
 **Cube Mapping** Screenshot taken from *examples/cubemap.bmx*
+
 ![Cube Mapping](https://cloud.githubusercontent.com/assets/10528519/8034687/58aa993e-0dea-11e5-9bb9-100c753cf805.png "Screenshot Cube Mapping")
 
 **Bumpmapping** Screenshot taken from *bumpmapping.bmx*
+
 ![Bumpmapping](https://cloud.githubusercontent.com/assets/10528519/8034686/58aa5f14-0dea-11e5-822c-1bd1b99f41d1.png "Screenshot Bumpmapping")
 
 **Custom Shaders** Screenshot taken from *watershader.bmx*
+
 ![Custom Shader](https://cloud.githubusercontent.com/assets/10528519/8034688/58ab87d6-0dea-11e5-977a-9c23c471b428.png "Screenshot Water Shader")
 
 # Example
